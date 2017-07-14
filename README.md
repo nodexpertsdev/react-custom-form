@@ -1,6 +1,40 @@
 # react-custom-form
 Package to create react form by using json data
 
+## Quick examples:
+
+**Usage of CustomForm component**
+
+```no-highlight
+  <CustomForm
+    formData={formData}
+    formValues={formValues}
+    ref="formName"
+  />
+```
+
+**Usage of formData**
+```
+[
+  {
+    "id"         : "price",
+    "type"       : "number",
+    "field"      : "singleLineText",
+    "label"      : "Price",
+    "placeholder": "Price"
+  },
+]
+```
+
+**Usage of formValue**
+```
+[
+  {
+    "price"      : 100
+  },
+]
+```
+
 ## To install package
 
 `meteor add nodexpert:react-custom-form`
