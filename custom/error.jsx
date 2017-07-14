@@ -1,28 +1,19 @@
 // import metoer packages;
-import React, { Component } from 'react';
-export class  InputError extends Component {
-  constructor(props) {
-    super(props);
-    // return {
-    //   message: 'Input is invalid'
-    // };
-  }
-  render(){ 
-     var errorClass ="hidden";
-     if(this.props.visible)
-      errorClass="error-message";
-     else
-      errorClass="hidden ";
-     // classNames(this.props.className, {
-    //   'error_container':   true,
-    //   'visible':           this.props.visible,
-    //   'invisible':         !this.props.visible
-    // });
+import React from 'react';
+class InputError extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    
+    render(){ 
+        const errorClass = this.props.visible ? 'error-message' : 'hidden';
 
-    return (
-      <div className={errorClass}>
-        <span>{this.props.errorMessage}</span>
-      </div>
-    )
-  }
+        return (
+            <div className={errorClass}>
+                <span className='help-block'>{this.props.errorMessage}</span>
+            </div>
+        )
+    }
 }
+
+export default InputError;

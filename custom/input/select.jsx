@@ -1,10 +1,14 @@
 // import react
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // import components
-import { InputError }                  from '../error.jsx';
+import InputError           from '../error.jsx';
 
-export class SelectInput extends Component {
+// import helpers
+import helpers              from '../helper.js';
+
+class SelectInput extends React.Component {
     constructor(props){
         super(props);
         this.handleChange = this.handleChange.bind(this);
@@ -13,16 +17,18 @@ export class SelectInput extends Component {
             value        : this.props.value,
             options      : ( this.props.options || [] ),
             valid        : false,
-            errorMessage : "Input is invalid",
+            errorMessage : 'Input is invalid',
             errorVisible : false,
-            disabled     : this.props.disabled === true ? true : false
+            disabled     : this.props.disabled === true ? true : false,
+            validClass   : ''
         };
     }
     
     componentDidMount() {
         this.handleChange();
         this.setState({
-          errorVisible : false
+            errorVisible : false,
+            validClass: ''
         });
     }
 
@@ -46,7 +52,7 @@ export class SelectInput extends Component {
         this.validation(this.refs[this.props.name].value, valid);
      
         if(this.props.onChange) {
-          this.props.onChange(event);
+            this.props.onChange(event);
         }
     }
 
@@ -58,29 +64,33 @@ export class SelectInput extends Component {
           valid = true;
         }
         
-        let message = "";
+        let message = '';
         let errorVisible = false;
 
-        if (required && value=="") {
-          message       = emptyMessage || 'Required';
-          valid         = false;
-          errorVisible  = true;
+        if (required && value=='') {
+            message       = emptyMessage || 'Required';
+            valid         = false;
+            errorVisible  = true;
         }
         else if (!valid) {
-          message       = errorMessage || 'Please enter a valid value';
-          valid         = false;
-          errorVisible  = true;
+            message       = errorMessage || 'Please enter a valid value';
+            valid         = false;
+            errorVisible  = true;
         }
-        
+
+        const validClass = helpers.validClass( required, valid );
+    
         this.setState({
-            value       : value,
-            valid       : valid,
-            errorMessage: message,
-            errorVisible: errorVisible
+            errorMessage : message,
+            value,
+            valid,          
+            errorVisible,
+            validClass
+
         }, function() {
-          if(this.props.handleChange) {
-            this.props.handleChange();
-          }
+            if(this.props.handleChange) {
+                this.props.handleChange();
+            }
         });
     }
 
@@ -96,7 +106,7 @@ export class SelectInput extends Component {
         const { label, name } = this.props;
         if (label) {
             return (
-              <label htmlFor = { name }>{ label }</label>
+                <label htmlFor = { name }>{ label }</label>
             );
         }
     }
@@ -107,18 +117,18 @@ export class SelectInput extends Component {
         const { value, errorVisible, errorMessage, options } = state;
 
         return (
-            <div>
+            <div className={this.state.validClass}>
                 {this.renderLabel()}
                 <select 
-                        ref         = { name }
-                        id          = { name } 
-                        className   = { "form-control input " } 
-                        onChange    = { this.handleChange }
-                        onBlur      = { this.handleChange }
-                        value       = { value }
-                        disabled    = { disabled }
+                    ref         = { name }
+                    id          = { name } 
+                    className   = { 'form-control input ' } 
+                    onChange    = { this.handleChange }
+                    onBlur      = { this.handleChange }
+                    value       = { value }
+                    disabled    = { disabled }
                 >
-                    <option value="">{ defaultOption ? defaultOption: "--Please Select--" }</option>
+                    <option value=''>{ defaultOption ? defaultOption: '--Please Select--' }</option>
                     {
                         options.map((dataRow) => {
                             return this.renderOption(dataRow);
@@ -135,5 +145,7 @@ export class SelectInput extends Component {
 };
 
 SelectInput.propTypes = {
-  name : PropTypes.string.isRequired
+    name : PropTypes.string.isRequired
 };
+
+export default SelectInput;

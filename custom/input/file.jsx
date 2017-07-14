@@ -1,10 +1,14 @@
 // import react packages;
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // import components
-import { InputError }                  from '../error.jsx';
+import InputError           from '../error.jsx';
 
-export class FileInput extends Component {
+// import helpers
+import helpers              from '../helper.js';
+
+class FileInput extends React.Component {
     constructor(props) {
         super(props);
         this.handleChange   = this.handleChange.bind(this);
@@ -12,12 +16,22 @@ export class FileInput extends Component {
         this.focus          = this.focus.bind(this);
 
         this.state = {
-            value: this.props.value,
+            value      : this.props.value,
             isEmpty: true,
             valid: false,
             errorMessage: "Input is invalid",
-            errorVisible: false
+            errorVisible: false,
+            fileNames: [],
+            validClass      : ''
         };
+    }
+
+    componentDidMount() {
+        this.handleChange();
+        this.setState({
+          errorVisible : false,
+          validClass   : ''
+        });
     }
 
     focus() {
@@ -25,11 +39,22 @@ export class FileInput extends Component {
         return;
     }
 
-    componentDidMount() {
-        this.handleChange();
-        this.setState({
-          errorVisible : false
-        })
+    handleChange(event) {
+        let valid;
+
+        const { refs, props } = this;
+        const { name, type }  = props;
+
+        let value  = refs[name].value;
+        let result = [];
+
+        if (value) {
+            result = value.split(".");
+            let extension = result[result.length - 1];
+            valid = this.isValid(extension, type);
+        }
+
+        this.validation(value, valid);
     }
 
     isValid(extension, type) {
@@ -51,74 +76,12 @@ export class FileInput extends Component {
             return false;
         }
 
+        extension = extension.toLowerCase();
+
         const index = extensions.indexOf(extension);
         const valid = index != -1;
 
         return valid;
-    }
-
-    // validateImage(extension) {
-    //     const extensions = this.props.ext ? this.props.ext : [
-    //             "jpeg", "jpg", "jfif", "exif", "tiff",
-    //             "gif", "bmp", "png", "ppm", "pgm", "pbm", "pnm",
-    //             "webp", "hdr", "heif", "bat", "bpg", "cgm", "svg"
-    //         ];
-
-    //     const index = extensions.indexOf(extension);
-    //     const valid = index != -1;
-
-    //     return valid;
-    // }
-
-    // validateVideo(extension) {
-    //     const extensions = this.props.ext ? this.props.ext : [
-    //             "ogv", "mp4", "webm", "mkv", "flv", "vob", "ogg", "drc", "avi", "wmv", "3gp", "mpeg"
-    //         ];
-
-    //     const index = extensions.indexOf(extension);
-    //     const valid = index != -1;
-
-    //     return valid;
-    // }
-
-    // validateCSV(extension) {
-    //     let valid = false;
-    //     if (this.props.ext) {
-    //         var index = this.props.ext.indexOf(extension);
-    //         valid = index != -1;
-    //     }
-    //     else {
-    //         let extensions = ["csv"];
-    //         var index = extensions.indexOf(extension);
-    //         valid = index != -1;
-    //     }
-    //     return valid;
-    // }
-
-    handleChange(event) {
-        let valid = undefined;
-
-        const { refs, props } = this;
-        const { name, type }  = props;
-
-        let value  = refs[name].value;
-        let result = [];
-
-        if (value) {
-            result = value.split(".");
-            let extension = result[result.length - 1];
-            // if (type == "image") {
-            //     valid = this.validateImage(extension);
-            // } else if (type == "video") {
-            //     valid = this.validateVideo(extension);
-            // } else if (type == "csv") {
-            //     valid = this.validateCSV(extension);
-            // }
-
-            valid = this.isValid(extension, type);
-        }
-
-        this.validation(value, valid);
     }
 
     validation(value, valid) {
@@ -150,6 +113,9 @@ export class FileInput extends Component {
 
         let count = 0;
         let values = [];
+
+        let validClass = helpers.validClass( required, valid );
+
         if(!files.length) {
             if(image) {
                 valid = true;
@@ -157,10 +123,12 @@ export class FileInput extends Component {
 
             this.setState({
                 value: image,
-                valid: valid,
                 errorMessage: message,
-                errorVisible: errorVisible
-            },function(){
+                valid,                
+                errorVisible,
+                validClass
+
+            },function() {
                 if (that.props.handleChange) {
                     that.props.handleChange();
                 }
@@ -168,6 +136,8 @@ export class FileInput extends Component {
 
             return;
         }
+
+        const fileNames = [];
 
         _.map(files, function(file) {
             let reader = new FileReader();
@@ -180,12 +150,19 @@ export class FileInput extends Component {
             reader.onload = function() {
                 count++;
                 values.push(this.result);
+                fileNames.push(file.name);
+
                 if(count == files.length) {
+                    validClass = helpers.validClass( required, valid );
+
                     that.setState({
-                        value: values,
-                        valid: valid,
+                        value: values,                        
                         errorMessage: message,
-                        errorVisible: errorVisible
+                        valid,
+                        errorVisible,
+                        fileNames,
+                        validClass
+
                     }, function(){
                         if (that.props.handleChange) {
                             that.props.handleChange();
@@ -193,7 +170,7 @@ export class FileInput extends Component {
                     });
                 }
 
-            }
+            };
         });
     }
 
@@ -202,7 +179,7 @@ export class FileInput extends Component {
         const { name, multiple, disabled }          = props;
         const { value, errorVisible, errorMessage } = state;
         return (
-            <div>
+             <div className={this.state.validClass}>
                 <input
                     type      = { "file" }
                     name      = { name }
@@ -210,10 +187,10 @@ export class FileInput extends Component {
                     id        = { name }
                     className = { "form-control" }
                     onChange  = { this.handleChange }
-                    onBlur    = { this.handleChange }
+                    onBlur    = { this.props.disableBlur ? null : this.handleChange }
                     disabled  = { disabled }
                     multiple  = { multiple }
-                />
+                  />
 
                 <InputError
                     visible      = { errorVisible }
@@ -227,3 +204,9 @@ export class FileInput extends Component {
 FileInput.propTypes = {
   name : PropTypes.string.isRequired
 };
+
+FileInput.defaultProps = {
+    disableBlur: false
+};
+
+export default FileInput;

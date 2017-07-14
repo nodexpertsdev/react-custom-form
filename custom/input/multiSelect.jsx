@@ -1,10 +1,14 @@
 // import react
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import PropTypes from 'prop-types';
 
 // import components
-import { InputError }                  from '../error.jsx';
+import InputError           from '../error.jsx';
 
-export class MultipleSelectInput extends Component {
+// import helpers
+import helpers              from '../helper.js';
+
+class MultipleSelectInput extends React.Component {
     constructor(props) {
         super(props);
         this.handleChange = this.handleChange.bind(this);
@@ -14,15 +18,17 @@ export class MultipleSelectInput extends Component {
             options         : ( this.props.options || [] ),
             isEmpty         : true,
             valid           : false,
-            errorMessage    : "Input is invalid",
-            errorVisible    : false
+            errorMessage    : 'Input is invalid',
+            errorVisible    : false,
+            validClass      : ''
         };
     }
 
     componentDidMount() {
         this.handleChange();
         this.setState({
-          errorVisible : false
+            errorVisible : false,
+            validClass: ''
         });
     }
 
@@ -32,49 +38,54 @@ export class MultipleSelectInput extends Component {
         return;
     }
 
-
     handleChange() {
         let value = [];
         _.map(this.refs,function(item, i) {
-            if(item.tagName && item.tagName == "OPTION" && item.selected==true ){
+            if( item.tagName && item.tagName == 'OPTION' && item.selected === true ) {
                 value.push(item.value);
             }
         });
-        value && value.length >=1 ? this.validation(value, true) : this.validation(value) ;
-    }
 
-    
+        this.validation(value, true);
+
+        // value && value.length >=1 ? this.validation(value, true) : this.validation(value) ;
+    }
 
     validation (value, valid) {
         const { required, emptyMessage, errorMessage } = this.props;
 
         if (typeof valid === 'undefined') {
-          valid = true;
+            valid = true;
         }
         
-        let message = "";
+        let message = '';
         let errorVisible = false;
 
         if (required && value.length < 1) {
-          message       = emptyMessage || 'Required';
-          valid         = false;
-          errorVisible  = true;
+            message       = emptyMessage || 'Required';
+            valid         = false;
+            errorVisible  = true;
         }
         else if (!valid) {
-          message       = errorMessage || 'Please enter a valid value';
-          valid         = false;
-          errorVisible  = true;
+            message       = errorMessage || 'Please enter a valid value';
+            valid         = false;
+            errorVisible  = true;
         }
         
+        const validClass = helpers.validClass( required, valid );
+
         this.setState({
-            value: value,
-            valid: valid,
-            errorMessage: message,
-            errorVisible: errorVisible
+
+            errorMessage : message,
+            value,
+            valid,          
+            errorVisible,
+            validClass
+
         }, function() {
-          if(this.props.handleChange) {
-            this.props.handleChange();
-          }
+            if(this.props.handleChange) {
+                this.props.handleChange();
+            }
         });
     }
 
@@ -91,14 +102,14 @@ export class MultipleSelectInput extends Component {
 
         const that = this;
         return (
-            <div>
+            <div className={this.state.validClass}>
                 <select 
                     multiple     = { true } 
                     disabled     = { disabled } 
                     defaultValue = { value } 
                     ref          = { name } 
                     onBlur       = { this.handleChange } 
-                    className    = { "form-control" } 
+                    className    = { 'form-control' } 
                     onChange     = { this.handleChange } >
                     {
                         options.map(function(dataRow, key) {
@@ -106,6 +117,7 @@ export class MultipleSelectInput extends Component {
                         })
                     }
                 </select>
+
                 <InputError 
                     visible      = { errorVisible } 
                     errorMessage = { errorMessage }
@@ -118,3 +130,5 @@ export class MultipleSelectInput extends Component {
 MultipleSelectInput.propTypes = {
   name : PropTypes.string.isRequired
 };
+
+export default MultipleSelectInput;

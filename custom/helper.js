@@ -1,7 +1,7 @@
 const helpers = {};
 
 helpers.modifyValues = function(formData, formValues) {
-	_.map(formData, function(element) {
+    _.map(formData, function(element) {
         const { id, field } = element;
         if(!(formValues && formValues[id])) {
             return;
@@ -42,6 +42,11 @@ helpers.modifyValues = function(formData, formValues) {
         }
     });
     return formValues;
+};
+
+helpers.validClass = function (required, valid) {
+    const validClass = required && ( valid ? 'has-success' : 'has-error' ) || '';
+    return validClass;
 }
 
 export default helpers;

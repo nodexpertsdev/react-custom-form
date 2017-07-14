@@ -1,21 +1,21 @@
 // import metoer react packages;
-import React, { Component }     from 'react';
+import React                    from 'react';
 import { _ }                    from 'meteor/underscore';
 
 // import components
-import { CheckboxInput }        from './input/checkbox.jsx';
-import { FileInput }            from './input/file.jsx';
-import { InputError }           from './error.jsx';
-import { MultipleSelectInput }  from './input/multiSelect.jsx';
-import { RadioInput }           from './input/radio.jsx';
-import { SelectInput }          from './input/select.jsx';
-import { TextAreaInput }        from './input/textarea.jsx';
-import { TextInput }            from './input/text.jsx';
+import CheckboxInput        from './input/checkbox.jsx';
+import FileInput            from './input/file.jsx';
+import InputError           from './error.jsx';
+import MultipleSelectInput  from './input/multiSelect.jsx';
+import RadioInput           from './input/radio.jsx';
+import SelectInput          from './input/select.jsx';
+import TextAreaInput        from './input/textarea.jsx';
+import TextInput            from './input/text.jsx';
 
 // import helpers
-import helpers                  from './helper.js';
+import helpers              from './helper.js';
 
-export class CustomForm extends Component {
+class CustomForm extends React.Component {
     constructor(props) {
         super(props);
         this.focus            = this.focus.bind(this);
@@ -354,3 +354,5 @@ export class CustomForm extends Component {
         );
     }
 }
+
+export default CustomForm;
