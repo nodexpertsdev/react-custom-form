@@ -51,6 +51,7 @@ Docs
 * [Radio](docs/radio/README.md)
 * [Text](docs/text/README.md)
 * [Textarea](docs/textarea/README.md)
+* [Clon-Component](docs/clonComponent/README.md)
 
 
 To Do
